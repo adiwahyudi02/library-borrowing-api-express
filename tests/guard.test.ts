@@ -1,6 +1,7 @@
 import supertest from "supertest";
 import { web } from "../src/applications/web";
 import { TestUtils } from "./utils";
+import { logger } from "../src/applications/logger";
 
 describe("Guard", () => {
   describe("/api/guards/register", () => {
@@ -26,6 +27,67 @@ describe("Guard", () => {
         email: "",
         password: "",
       });
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
+
+  describe("/api/guards/login", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should login successfully", async () => {
+      const response = await supertest(web).post("/api/guards/login").send({
+        email: "test@test.com",
+        password: "test",
+      });
+
+      logger.info(response);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBeDefined();
+      expect(response.body.data.name).toBe("test");
+      expect(response.body.data.email).toBe("test@test.com");
+      expect(response.body.data.access_token).toBeDefined();
+    });
+
+    it("should should failed to login if the request is invalid", async () => {
+      const response = await supertest(web).post("/api/guards/login").send({
+        email: "",
+        password: "",
+      });
+
+      logger.info(response);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should should failed to login if the email is wrong", async () => {
+      const response = await supertest(web).post("/api/guards/login").send({
+        email: "wrong@test.com",
+        password: "test",
+      });
+
+      logger.info(response);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should should failed to login if the password is wrong", async () => {
+      const response = await supertest(web).post("/api/guards/login").send({
+        email: "test@test.com",
+        password: "wrong",
+      });
+
+      logger.info(response);
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
