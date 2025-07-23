@@ -7,3 +7,4 @@ privateRouter.use(authMiddleware);
 
 privateRouter.get("/api/guards/me", GuardController.me);
 privateRouter.patch("/api/guards/me", GuardController.updateMe);
+privateRouter.delete("/api/guards/logout", GuardController.logout);

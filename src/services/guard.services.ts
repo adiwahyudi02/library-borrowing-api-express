@@ -119,4 +119,15 @@ export class GuardService {
 
     return res;
   };
+
+  static logout = async (guard: Guard) => {
+    await prismaClient.guard.update({
+      where: {
+        id: guard.id,
+      },
+      data: {
+        access_token: null,
+      },
+    });
+  };
 }

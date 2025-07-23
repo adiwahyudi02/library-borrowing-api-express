@@ -61,4 +61,18 @@ export class GuardController {
       next(e);
     }
   };
+
+  static logout = async (
+    req: GuardRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const guard = req.guard;
+      await GuardService.logout(guard!);
+      res.status(204).end();
+    } catch (e) {
+      next(e);
+    }
+  };
 }
