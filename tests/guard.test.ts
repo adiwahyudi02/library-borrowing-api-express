@@ -4,7 +4,7 @@ import { TestUtils } from "./utils";
 import { logger } from "../src/applications/logger";
 
 describe("Guard", () => {
-  describe("/api/guards/register", () => {
+  describe("POST /api/guards/register", () => {
     afterEach(async () => {
       await TestUtils.DeleteDummyGuard();
     });
@@ -33,7 +33,7 @@ describe("Guard", () => {
     });
   });
 
-  describe("/api/guards/login", () => {
+  describe("POST /api/guards/login", () => {
     beforeEach(async () => {
       await TestUtils.CreateDummyGuard();
     });
@@ -94,7 +94,7 @@ describe("Guard", () => {
     });
   });
 
-  describe("/api/guards/me", () => {
+  describe("GET /api/guards/me", () => {
     beforeEach(async () => {
       await TestUtils.CreateDummyGuard();
     });
@@ -124,6 +124,59 @@ describe("Guard", () => {
       logger.info(response);
 
       expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
+
+  describe("PATCH /api/guards/me", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should update the current logged-in guard", async () => {
+      const response = await supertest(web)
+        .patch("/api/guards/me")
+        .set("X-API-TOKEN", "test")
+        .send({
+          name: "test2",
+        });
+
+      logger.info(response);
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBeDefined();
+      expect(response.body.data.name).toBe("test2");
+      expect(response.body.data.email).toBe("test@test.com");
+    });
+
+    it("should reject if the token is wrong", async () => {
+      const response = await supertest(web)
+        .patch("/api/guards/me")
+        .set("X-API-TOKEN", "wrong")
+        .send({
+          name: "test2",
+        });
+
+      logger.info(response);
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should reject if the request body is invalid", async () => {
+      const response = await supertest(web)
+        .patch("/api/guards/me")
+        .set("X-API-TOKEN", "test")
+        .send({
+          name: "",
+          email: "",
+          password: "",
+        });
+
+      logger.info(response);
+      expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
     });
   });
