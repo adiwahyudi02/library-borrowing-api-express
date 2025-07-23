@@ -1,0 +1,230 @@
+openapi: 3.0.3
+info:
+  title: Simple Library Borrowing System - Guards API
+  version: 1.0.0
+  description: API for managing guards (librarians) who can manage books, members, and borrowings.
+
+servers:
+  - url: http://localhost:3000/api
+
+tags:
+  - name: Guards
+    description: Endpoints related to guards (librarians)
+
+paths:
+  /guards/register:
+    post:
+      tags:
+        - Guards
+      summary: Register new guard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterGuardRequest"
+      responses:
+        "201":
+          description: Guard created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataGuardResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /guards/login:
+    post:
+      tags:
+        - Guards
+      summary: Login guard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginGuardRequest"
+      responses:
+        "200":
+          description: Login successful, return access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataLoginResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /guards/me:
+    get:
+      tags:
+        - Guards
+      summary: Get current logged-in guard
+      security:
+        - ApiKeyAuth: []
+      responses:
+        "200":
+          description: Guard profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataGuardResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    patch:
+      tags:
+        - Guards
+      summary: Update current guard profile
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGuardRequest"
+      responses:
+        "200":
+          description: Updated guard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataGuardResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /guards/logout:
+    post:
+      tags:
+        - Guards
+      summary: Logout guard
+      security:
+        - ApiKeyAuth: []
+      responses:
+        "204":
+          description: Logout successful (no content)
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+  schemas:
+    # Success wrappers
+    DataGuardResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/GuardResponse"
+
+    DataLoginResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/LoginResponse"
+
+    # Error response
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: string
+          example: "Invalid request payload"
+
+    # Request payloads
+    RegisterGuardRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        password:
+          type: string
+          format: password
+          example: "strongpassword123"
+
+    LoginGuardRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        password:
+          type: string
+          format: password
+          example: "strongpassword123"
+
+    UpdateGuardRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John Updated"
+        password:
+          type: string
+          format: password
+          example: "newpassword123"
+
+    # Response payloads
+    GuardResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "example-api-key-123456"
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          example: "john@example.com"
