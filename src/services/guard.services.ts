@@ -1,3 +1,4 @@
+import { Guard } from "@prisma/client";
 import { prismaClient } from "../applications/database";
 import { ResponseError } from "../errors/response.error";
 import { LoginGuardRequest, RegisterGuardRequest } from "../models/guard";
@@ -75,5 +76,13 @@ export class GuardService {
     });
 
     return res;
+  };
+
+  static me = async (guard: Guard) => {
+    return {
+      id: guard.id,
+      name: guard.name,
+      email: guard.email,
+    };
   };
 }
