@@ -9,6 +9,7 @@ export class TestUtils {
         name: "test",
         email: "test@test.com",
         password: password,
+        access_token: "test",
       },
     });
   }

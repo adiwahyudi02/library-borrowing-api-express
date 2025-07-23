@@ -93,4 +93,38 @@ describe("Guard", () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe("/api/guards/me", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should return the current logged-in guard", async () => {
+      const response = await supertest(web)
+        .get("/api/guards/me")
+        .set("X-API-TOKEN", "test");
+
+      logger.info(response);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBeDefined();
+      expect(response.body.data.name).toBe("test");
+      expect(response.body.data.email).toBe("test@test.com");
+    });
+
+    it("should not return the Unauthorized error if token is invalid", async () => {
+      const response = await supertest(web)
+        .get("/api/guards/me")
+        .set("X-API-TOKEN", "wrong");
+
+      logger.info(response);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });
