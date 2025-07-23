@@ -180,4 +180,33 @@ describe("Guard", () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe("DELETE /api/guards/logout", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should logout the current logged-in guard", async () => {
+      const response = await supertest(web)
+        .delete("/api/guards/logout")
+        .set("X-API-TOKEN", "test");
+
+      logger.info(response);
+      expect(response.status).toBe(204);
+    });
+
+    it("should reject the logout process if the token is wrong", async () => {
+      const response = await supertest(web)
+        .patch("/api/guards/logout")
+        .set("X-API-TOKEN", "wrong");
+
+      logger.info(response);
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });
