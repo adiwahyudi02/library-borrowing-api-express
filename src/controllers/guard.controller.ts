@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { RegisterGuardRequest } from "../models/guard";
+import { LoginGuardRequest, RegisterGuardRequest } from "../models/guard";
 import { GuardService } from "../services/guard.services";
 
 export class GuardController {
@@ -9,6 +9,18 @@ export class GuardController {
 
       const response = await GuardService.register(request);
       res.status(201).json({
+        data: response,
+      });
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  static login = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const request = req.body as LoginGuardRequest;
+      const response = await GuardService.login(request);
+      res.status(200).json({
         data: response,
       });
     } catch (e) {

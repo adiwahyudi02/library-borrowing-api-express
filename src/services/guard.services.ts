@@ -1,9 +1,10 @@
 import { prismaClient } from "../applications/database";
 import { ResponseError } from "../errors/response.error";
-import { RegisterGuardRequest } from "../models/guard";
+import { LoginGuardRequest, RegisterGuardRequest } from "../models/guard";
 import { GuardValidation } from "../validations/guard.validation";
 import { Validation } from "../validations/validation";
 import bcrypt from "bcrypt";
+import { v4 as uuid } from "uuid";
 
 export class GuardService {
   static register = async (request: RegisterGuardRequest) => {
@@ -30,6 +31,46 @@ export class GuardService {
         id: true,
         name: true,
         email: true,
+      },
+    });
+
+    return res;
+  };
+
+  static login = async (request: LoginGuardRequest) => {
+    const loginRequest = Validation.validate(GuardValidation.LOGIN, request);
+
+    const guard = await prismaClient.guard.findUnique({
+      where: {
+        email: loginRequest.email,
+      },
+    });
+
+    if (!guard) {
+      throw new ResponseError(400, "Email or password is wrong");
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      loginRequest.password,
+      guard.password
+    );
+
+    if (!isPasswordValid) {
+      throw new ResponseError(400, "Email or password is wrong");
+    }
+
+    const res = await prismaClient.guard.update({
+      where: {
+        email: loginRequest.email,
+      },
+      data: {
+        access_token: uuid(),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        access_token: true,
       },
     });
 

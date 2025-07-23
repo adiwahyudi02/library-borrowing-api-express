@@ -4,6 +4,11 @@ export interface RegisterGuardRequest {
   password: string;
 }
 
+export interface LoginGuardRequest {
+  email: string;
+  password: string;
+}
+
 export interface GuardResponse {
   id: number;
   name: string;

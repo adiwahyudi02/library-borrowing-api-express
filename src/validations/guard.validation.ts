@@ -6,4 +6,9 @@ export class GuardValidation {
     email: z.email().min(1).max(100),
     password: z.string().min(1).max(100),
   });
+
+  static readonly LOGIN: ZodType = z.object({
+    email: z.email().min(1).max(100),
+    password: z.string().min(1).max(100),
+  });
 }
