@@ -15,3 +15,9 @@ export interface GuardResponse {
   email: string;
   acces_token?: string;
 }
+
+export interface UpdateGuardRequest {
+  name?: string;
+  email?: string;
+  password?: string;
+}

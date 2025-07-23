@@ -1,7 +1,11 @@
 import { Guard } from "@prisma/client";
 import { prismaClient } from "../applications/database";
 import { ResponseError } from "../errors/response.error";
-import { LoginGuardRequest, RegisterGuardRequest } from "../models/guard";
+import {
+  LoginGuardRequest,
+  RegisterGuardRequest,
+  UpdateGuardRequest,
+} from "../models/guard";
 import { GuardValidation } from "../validations/guard.validation";
 import { Validation } from "../validations/validation";
 import bcrypt from "bcrypt";
@@ -84,5 +88,35 @@ export class GuardService {
       name: guard.name,
       email: guard.email,
     };
+  };
+
+  static updateMe = async (guard: Guard, request: UpdateGuardRequest) => {
+    const updateRequest = Validation.validate(GuardValidation.UPDATE, request);
+
+    if (updateRequest.name) {
+      guard.name = updateRequest.name;
+    }
+
+    if (updateRequest.email) {
+      guard.email = updateRequest.email;
+    }
+
+    if (updateRequest.password) {
+      guard.password = await bcrypt.hash(updateRequest.password, 10);
+    }
+
+    const res = await prismaClient.guard.update({
+      where: {
+        id: guard.id,
+      },
+      data: guard,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    return res;
   };
 }
