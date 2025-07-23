@@ -110,7 +110,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 
   /guards/logout:
-    post:
+    delete:
       tags:
         - Guards
       summary: Logout guard
