@@ -60,4 +60,29 @@ export class TestUtils {
 
     return book;
   }
+
+  static async CreateDummyMember() {
+    await prismaClient.member.create({
+      data: {
+        name: "member-test-123",
+        email: "member-test-123@test.com",
+        phone: "011111111111",
+      },
+    });
+  }
+
+  static async DeleteDummyMember() {
+    await prismaClient.member.deleteMany({
+      where: {
+        OR: [
+          {
+            email: "member-test-123@test.com",
+          },
+          {
+            email: "member-test-123@test.comupdated",
+          },
+        ],
+      },
+    });
+  }
 }
