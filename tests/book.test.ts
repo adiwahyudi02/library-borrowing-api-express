@@ -249,4 +249,47 @@ describe("Book", () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe("DELETE /api/books/:bookId", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+      await TestUtils.CreateDummyBook();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyBook();
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should delete the book based on id", async () => {
+      const book = await TestUtils.GetDummyBook();
+      const bookId = book.id;
+      const response = await supertest(web)
+        .delete(`/api/books/${bookId}`)
+        .set("X-API-TOKEN", "test");
+
+      expect(response.status).toBe(204);
+    });
+
+    it("should return 401 if the token is invalid", async () => {
+      const book = await TestUtils.GetDummyBook();
+      const bookId = book.id;
+      const response = await supertest(web)
+        .delete(`/api/books/${bookId}`)
+        .set("X-API-TOKEN", "wrong");
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return 404 if the book is not found", async () => {
+      const book = await TestUtils.GetDummyBook();
+      const response = await supertest(web)
+        .delete(`/api/books/${book.id + 1}`)
+        .set("X-API-TOKEN", "test");
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });
