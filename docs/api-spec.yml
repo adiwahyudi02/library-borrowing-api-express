@@ -907,6 +907,9 @@ components:
         bookId:
           type: integer
           example: 5
+        guardId:
+          type: integer
+          example: 1
         borrowDate:
           type: string
           format: date
@@ -959,6 +962,8 @@ components:
           $ref: "#/components/schemas/MemberResponse"
         book:
           $ref: "#/components/schemas/BookResponse"
+        guard:
+          $ref: "#/components/schemas/GuardResponse"
 
     DataBorrowingResponse:
       type: object
