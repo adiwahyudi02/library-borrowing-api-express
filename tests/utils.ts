@@ -25,7 +25,14 @@ export class TestUtils {
   static async DeleteDummyBook() {
     await prismaClient.book.deleteMany({
       where: {
-        title: "title-test-123",
+        OR: [
+          {
+            title: "title-test-123",
+          },
+          {
+            title: "title-test-123 updated",
+          },
+        ],
       },
     });
   }

@@ -156,8 +156,92 @@ describe("Book", () => {
       expect(response.body.errors).toBeDefined();
     });
 
-    it("should return invalid erro if the book is not number", async () => {
+    it("should return invalid error if the book is not number", async () => {
       const response = await supertest(web).get("/api/books/asdf");
+
+      logger.info(response);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
+
+  describe("PATCH /api/books/:bookId", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+      await TestUtils.CreateDummyBook();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyBook();
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should update the book based on id", async () => {
+      const book = await TestUtils.GetDummyBook();
+      const bookId = book.id;
+      const response = await supertest(web)
+        .patch(`/api/books/${bookId}`)
+        .set("X-API-TOKEN", "test")
+        .send({
+          title: "title-test-123 updated",
+          author: "author-test-123 updated",
+          stock: 2,
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBe(book.id);
+      expect(response.body.data.title).toBe("title-test-123 updated");
+      expect(response.body.data.author).toBe("author-test-123 updated");
+      expect(response.body.data.stock).toBe(2);
+    });
+
+    it("should return 401 if the token is invalid", async () => {
+      const book = await TestUtils.GetDummyBook();
+      const bookId = book.id;
+      const response = await supertest(web)
+        .patch(`/api/books/${bookId}`)
+        .set("X-API-TOKEN", "wrong")
+        .send({
+          title: "title-test-123 updated",
+          author: "author-test-123 updated",
+          stock: 2,
+        });
+
+      logger.info(response);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return 404 if the book is not found", async () => {
+      const book = await TestUtils.GetDummyBook();
+      const response = await supertest(web)
+        .patch(`/api/books/${book.id + 1}`)
+        .set("X-API-TOKEN", "test")
+        .send({
+          title: "title-test-123 updated",
+          author: "author-test-123 updated",
+          stock: 2,
+        });
+
+      logger.info(response);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return invalid error if the request is not valid", async () => {
+      const book = await TestUtils.GetDummyBook();
+      const bookId = book.id;
+      const response = await supertest(web)
+        .patch(`/api/books/${bookId}`)
+        .set("X-API-TOKEN", "test")
+        .send({
+          title: "",
+          author: "",
+          stock: -1,
+        });
 
       logger.info(response);
 
