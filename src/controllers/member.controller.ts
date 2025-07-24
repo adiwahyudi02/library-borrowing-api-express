@@ -1,5 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { CreateMemberRequest, ListMemberRequest } from "../models/member";
+import {
+  CreateMemberRequest,
+  ListMemberRequest,
+  UpdateMemberRequest,
+} from "../models/member";
 import { MemberService } from "../services/member.service";
 
 export class MemberController {
@@ -38,6 +42,19 @@ export class MemberController {
 
     try {
       const response = await MemberService.get(memberId);
+      res.status(200).json({
+        data: response,
+      });
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  static update = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const memberId = Number(req.params.memberId);
+      const request = req.body as UpdateMemberRequest;
+      const response = await MemberService.update(memberId, request);
       res.status(200).json({
         data: response,
       });

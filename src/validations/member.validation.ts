@@ -16,4 +16,10 @@ export class MemberValidation {
   });
 
   static readonly GET: ZodType = z.number().positive();
+
+  static readonly UPDATE: ZodType = z.object({
+    name: z.string().min(1).max(100).optional(),
+    email: z.email().min(1).max(100).optional(),
+    phone: z.string().min(6).max(20).optional(),
+  });
 }

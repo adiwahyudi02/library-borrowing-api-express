@@ -1,7 +1,11 @@
 import { prismaClient } from "../applications/database";
 import { Validation } from "../validations/validation";
 import { ResponseError } from "../errors/response.error";
-import { CreateMemberRequest, ListMemberRequest } from "../models/member";
+import {
+  CreateMemberRequest,
+  ListMemberRequest,
+  UpdateMemberRequest,
+} from "../models/member";
 import { MemberValidation } from "../validations/member.validation";
 
 export class MemberService {
@@ -109,6 +113,48 @@ export class MemberService {
     if (!res) {
       throw new ResponseError(404, "Member not found");
     }
+
+    return res;
+  };
+
+  static update = async (memberId: number, request: UpdateMemberRequest) => {
+    const id = Validation.validate(MemberValidation.GET, memberId);
+    const editRequest = Validation.validate(MemberValidation.UPDATE, request);
+
+    const checkId = await prismaClient.member.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!checkId) {
+      throw new ResponseError(404, "Member not found");
+    }
+
+    if (editRequest.email) {
+      const checkEmailUnique = await prismaClient.member.findUnique({
+        where: {
+          email: editRequest.email,
+        },
+      });
+
+      if (checkEmailUnique && checkEmailUnique.id !== id) {
+        throw new ResponseError(400, "Email already exists");
+      }
+    }
+
+    const res = await prismaClient.member.update({
+      where: {
+        id,
+      },
+      data: editRequest,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+      },
+    });
 
     return res;
   };

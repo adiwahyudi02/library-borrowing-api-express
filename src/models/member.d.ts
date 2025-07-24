@@ -11,3 +11,9 @@ export interface ListMemberRequest {
   page: number;
   size: number;
 }
+
+export interface UpdateMemberRequest {
+  name?: string;
+  email?: string;
+  phone?: string;
+}
