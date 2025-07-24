@@ -3,6 +3,7 @@ import { GuardController } from "../controllers/guard.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { BookController } from "../controllers/book.controller";
 import { MemberController } from "../controllers/member.controller";
+import { BorrowingController } from "../controllers/borrowing.controller";
 
 export const privateRouter = express.Router();
 privateRouter.use(authMiddleware);
@@ -23,3 +24,6 @@ privateRouter.get("/api/members", MemberController.list);
 privateRouter.get("/api/members/:memberId", MemberController.get);
 privateRouter.patch("/api/members/:memberId", MemberController.update);
 privateRouter.delete("/api/members/:memberId", MemberController.delete);
+
+// borrowings
+privateRouter.post("/api/borrowings", BorrowingController.create);
