@@ -22,6 +22,9 @@ model Guard {
   access_token String? @db.VarChar(100)
   createdAt DateTime @default(now())
 
+  // Relations
+  borrowings Borrowing[]
+
   @@map("guards")
 }
 
@@ -55,6 +58,7 @@ model Borrowing {
   id Int @id @default(autoincrement())
   memberId Int
   bookId Int
+  guardId Int
   borrowDate DateTime @default(now())
   dueDate DateTime?
   returnDate DateTime?
@@ -62,6 +66,7 @@ model Borrowing {
   // Relations
   member Member @relation(fields: [memberId], references: [id])
   book Book @relation(fields: [bookId], references: [id])
+  guard Guard @relation(fields: [guardId], references: [id])
 
   @@map("borrowings")
 }
