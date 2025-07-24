@@ -10,3 +10,9 @@ export interface ListBookRequest {
   page: number;
   size: number;
 }
+
+export interface UpdateBookRequest {
+  title?: string;
+  author?: string;
+  stock?: number;
+}

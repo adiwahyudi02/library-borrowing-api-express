@@ -13,3 +13,4 @@ privateRouter.delete("/api/guards/logout", GuardController.logout);
 
 // books
 privateRouter.post("/api/books", BookController.create);
+privateRouter.patch("/api/books/:bookId", BookController.update);

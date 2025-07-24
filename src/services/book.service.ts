@@ -1,5 +1,9 @@
 import { prismaClient } from "../applications/database";
-import { CreateBookRequest, ListBookRequest } from "../models/books";
+import {
+  CreateBookRequest,
+  ListBookRequest,
+  UpdateBookRequest,
+} from "../models/books";
 import { BookValidation } from "../validations/book.validation";
 import { Validation } from "../validations/validation";
 import { ResponseError } from "../errors/response.error";
@@ -101,6 +105,48 @@ export class BookService {
     if (!res) {
       throw new ResponseError(404, "Book not found");
     }
+
+    return res;
+  };
+
+  static update = async (bookId: number, request: UpdateBookRequest) => {
+    const id = Validation.validate(BookValidation.GET, bookId);
+    const editRequest = Validation.validate(BookValidation.UPDATE, request);
+
+    const checkId = await prismaClient.book.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!checkId) {
+      throw new ResponseError(404, "Book not found");
+    }
+
+    if (editRequest.title) {
+      const checkTitleUnique = await prismaClient.book.findUnique({
+        where: {
+          title: editRequest.title,
+        },
+      });
+
+      if (checkTitleUnique && checkTitleUnique.id !== id) {
+        throw new ResponseError(400, "Book title already exists");
+      }
+    }
+
+    const res = await prismaClient.book.update({
+      where: {
+        id,
+      },
+      data: editRequest,
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        stock: true,
+      },
+    });
 
     return res;
   };

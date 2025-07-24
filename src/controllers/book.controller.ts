@@ -1,5 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { CreateBookRequest, ListBookRequest } from "../models/books";
+import {
+  CreateBookRequest,
+  ListBookRequest,
+  UpdateBookRequest,
+} from "../models/books";
 import { BookService } from "../services/book.service";
 
 export class BookController {
@@ -37,6 +41,19 @@ export class BookController {
 
     try {
       const response = await BookService.get(bookId);
+      res.status(200).json({
+        data: response,
+      });
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  static update = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const bookId = Number(req.params.bookId);
+      const request = req.body as UpdateBookRequest;
+      const response = await BookService.update(bookId, request);
       res.status(200).json({
         data: response,
       });
