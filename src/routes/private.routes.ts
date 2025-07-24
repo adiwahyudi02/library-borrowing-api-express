@@ -19,3 +19,4 @@ privateRouter.delete("/api/books/:bookId", BookController.delete);
 
 // members
 privateRouter.post("/api/members", MemberController.create);
+privateRouter.get("/api/members", MemberController.list);
