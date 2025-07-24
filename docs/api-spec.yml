@@ -899,6 +899,7 @@ components:
         - memberId
         - bookId
         - borrowDate
+        - guardId
         - dueDate
       properties:
         memberId:
