@@ -224,4 +224,88 @@ describe("Member", () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe("PATCH /api/members/:memberId", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+      await TestUtils.CreateDummyMember();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyMember();
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should update the member based on id", async () => {
+      const member = await TestUtils.GetDummyMember();
+      const memberId = member.id;
+      const response = await supertest(web)
+        .patch(`/api/members/${memberId}`)
+        .set("X-API-TOKEN", "test")
+        .send({
+          name: "member-test-123 updated",
+          email: "member-test-123@test.comupdated",
+          phone: "011111111111",
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBe(member.id);
+      expect(response.body.data.name).toBe("member-test-123 updated");
+      expect(response.body.data.email).toBe("member-test-123@test.comupdated");
+      expect(response.body.data.phone).toBe("011111111111");
+    });
+
+    it("should return 401 if the token is invalid", async () => {
+      const member = await TestUtils.GetDummyMember();
+      const memberId = member.id;
+      const response = await supertest(web)
+        .patch(`/api/members/${memberId}`)
+        .set("X-API-TOKEN", "wrong")
+        .send({
+          name: "member-test-123 updated",
+          email: "member-test-123@test.comupdated",
+          phone: "011111111111",
+        });
+
+      logger.info(response);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return 404 if the member is not found", async () => {
+      const member = await TestUtils.GetDummyMember();
+      const response = await supertest(web)
+        .patch(`/api/members/${member.id + 1}`)
+        .set("X-API-TOKEN", "test")
+        .send({
+          name: "member-test-123 updated",
+          email: "member-test-123@test.comupdated",
+          phone: "011111111111",
+        });
+
+      logger.info(response);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return invalid error if the request is not valid", async () => {
+      const member = await TestUtils.GetDummyMember();
+      const memberId = member.id;
+      const response = await supertest(web)
+        .patch(`/api/members/${memberId}`)
+        .set("X-API-TOKEN", "test")
+        .send({
+          name: "",
+          email: "",
+          phone: "",
+        });
+
+      logger.info(response);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });
