@@ -164,4 +164,64 @@ describe("Member", () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe("GET /api/members/:memberId", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+      await TestUtils.CreateDummyMember();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyMember();
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should return the member based on id", async () => {
+      const member = await TestUtils.GetDummyMember();
+      const memberId = member.id;
+      const response = await supertest(web)
+        .get(`/api/members/${memberId}`)
+        .set("X-API-TOKEN", "test");
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBe(member.id);
+      expect(response.body.data.name).toBe(member.name);
+      expect(response.body.data.email).toBe(member.email);
+      expect(response.body.data.phone).toBe(member.phone);
+    });
+
+    it("should return 404 if the member is not found", async () => {
+      const member = await TestUtils.GetDummyMember();
+      const response = await supertest(web)
+        .get(`/api/members/${member.id + 1}`)
+        .set("X-API-TOKEN", "test");
+
+      logger.info(response);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return invalid error if the member is not number", async () => {
+      const response = await supertest(web)
+        .get("/api/members/asdf")
+        .set("X-API-TOKEN", "test");
+
+      logger.info(response);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should be unauthorized to get member if the token is wrong", async () => {
+      const member = await TestUtils.GetDummyMember();
+      const memberId = member.id;
+      const response = await supertest(web)
+        .get(`/api/members/${memberId}`)
+        .set("X-API-TOKEN", "wrong");
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });

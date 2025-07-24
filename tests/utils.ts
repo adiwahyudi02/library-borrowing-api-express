@@ -85,4 +85,18 @@ export class TestUtils {
       },
     });
   }
+
+  static async GetDummyMember() {
+    const member = await prismaClient.member.findFirst({
+      where: {
+        email: "member-test-123@test.com",
+      },
+    });
+
+    if (!member) {
+      throw new Error("Member is not found");
+    }
+
+    return member;
+  }
 }
