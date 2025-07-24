@@ -31,4 +31,17 @@ export class BookController {
       next(e);
     }
   };
+
+  static get = async (req: Request, res: Response, next: NextFunction) => {
+    const bookId = Number(req.params.bookId);
+
+    try {
+      const response = await BookService.get(bookId);
+      res.status(200).json({
+        data: response,
+      });
+    } catch (e) {
+      next(e);
+    }
+  };
 }

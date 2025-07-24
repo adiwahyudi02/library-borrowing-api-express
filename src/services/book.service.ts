@@ -2,6 +2,7 @@ import { prismaClient } from "../applications/database";
 import { CreateBookRequest, ListBookRequest } from "../models/books";
 import { BookValidation } from "../validations/book.validation";
 import { Validation } from "../validations/validation";
+import { ResponseError } from "../errors/response.error";
 
 export class BookService {
   static create = async (request: CreateBookRequest) => {
@@ -14,7 +15,7 @@ export class BookService {
     });
 
     if (checkTitleUnique) {
-      throw new Error("Book title already exists");
+      throw new ResponseError(400, "Book title already exists");
     }
 
     const res = await prismaClient.book.create({
@@ -80,5 +81,27 @@ export class BookService {
         total_items: total,
       },
     };
+  };
+
+  static get = async (bookId: number) => {
+    const id = Validation.validate(BookValidation.GET, bookId);
+
+    const res = await prismaClient.book.findFirst({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        stock: true,
+      },
+    });
+
+    if (!res) {
+      throw new ResponseError(404, "Book not found");
+    }
+
+    return res;
   };
 }

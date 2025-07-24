@@ -10,3 +10,4 @@ publicRouter.post("/api/guards/login", GuardController.login);
 
 // books
 publicRouter.get("/api/books", BookController.list);
+publicRouter.get("/api/books/:bookId", BookController.get);

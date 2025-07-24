@@ -13,4 +13,6 @@ export class BookValidation {
     page: z.number().min(1).positive(),
     size: z.number().min(1).max(100).positive(),
   });
+
+  static readonly GET: ZodType = z.number().positive();
 }
