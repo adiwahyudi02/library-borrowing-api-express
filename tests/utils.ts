@@ -22,6 +22,20 @@ export class TestUtils {
     });
   }
 
+  static async GetDummyGuard() {
+    const guard = await prismaClient.guard.findUnique({
+      where: {
+        email: "test@test.com",
+      },
+    });
+
+    if (!guard) {
+      throw new Error("Guard is not found");
+    }
+
+    return guard;
+  }
+
   static async DeleteDummyBook() {
     await prismaClient.book.deleteMany({
       where: {
@@ -98,5 +112,35 @@ export class TestUtils {
     }
 
     return member;
+  }
+
+  static async CreateDummyBorrowing() {
+    const guard = await this.GetDummyGuard();
+    const book = await this.GetDummyBook();
+    const member = await this.GetDummyMember();
+    await prismaClient.borrowing.create({
+      data: {
+        memberId: member.id,
+        bookId: book.id,
+        guardId: guard.id,
+        borrowDate: "2025-07-24T00:00:00.000Z",
+        dueDate: "2025-08-24T00:00:00.000Z",
+      },
+    });
+  }
+
+  static async DeleteDummyBorrowing() {
+    const guard = await this.GetDummyGuard();
+    const book = await this.GetDummyBook();
+    const member = await this.GetDummyMember();
+    await prismaClient.borrowing.deleteMany({
+      where: {
+        memberId: member.id,
+        bookId: book.id,
+        guardId: guard.id,
+        borrowDate: "2025-07-24T00:00:00.000Z",
+        dueDate: "2025-08-24T00:00:00.000Z",
+      },
+    });
   }
 }
