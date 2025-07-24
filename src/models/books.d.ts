@@ -3,3 +3,10 @@ export interface CreateBookRequest {
   author: string;
   stock: number;
 }
+
+export interface ListBookRequest {
+  title?: string;
+  author?: string;
+  page: number;
+  size: number;
+}
