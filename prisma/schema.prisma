@@ -32,6 +32,9 @@ model Book {
   stock Int
   createdAt DateTime @default(now())
 
+  // Relations
+  borrowings Borrowing[]
+
   @@map("books")
 }
 
@@ -42,5 +45,23 @@ model Member {
   phone String? @db.VarChar(20)
   createdAt DateTime @default(now())
 
+  // Relations
+  borrowings Borrowing[]
+
   @@map("members")
+}
+
+model Borrowing {
+  id Int @id @default(autoincrement())
+  memberId Int
+  bookId Int
+  borrowDate DateTime @default(now())
+  dueDate DateTime?
+  returnDate DateTime?
+
+  // Relations
+  member Member @relation(fields: [memberId], references: [id])
+  book Book @relation(fields: [bookId], references: [id])
+
+  @@map("borrowings")
 }
