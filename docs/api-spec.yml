@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: Simple Library Borrowing System - Guards API
   version: 1.0.0
@@ -10,6 +10,8 @@ servers:
 tags:
   - name: Guards
     description: Endpoints related to guards (librarians)
+  - name: Books
+    description: Endpoints for managing books
 
 paths:
   /guards/register:
@@ -126,6 +128,133 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /books:
+    post:
+      tags:
+        - Books
+      summary: Create new book
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBookRequest"
+      responses:
+        "201":
+          description: Book created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataBookResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      tags:
+        - Books
+      summary: List all books
+      security:
+        - ApiKeyAuth: []
+      responses:
+        "200":
+          description: List of books
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataBooksResponse"
+
+  /books/{bookId}:
+    get:
+      tags:
+        - Books
+      summary: Get a book by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Book detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataBookResponse"
+        "404":
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    patch:
+      tags:
+        - Books
+      summary: Update a book by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBookRequest"
+      responses:
+        "200":
+          description: Updated book data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataBookResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Books
+      summary: Delete a book by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Book deleted successfully (no content)
+        "404":
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -231,3 +360,65 @@ components:
         access_token:
           type: string
           example: "example-api-key-123456"
+
+    CreateBookRequest:
+      type: object
+      required:
+        - title
+        - author
+        - stock
+      properties:
+        title:
+          type: string
+          example: "Clean Code"
+        author:
+          type: string
+          example: "Robert C. Martin"
+        stock:
+          type: integer
+          example: 10
+
+    UpdateBookRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Clean Code Updated"
+        author:
+          type: string
+          example: "Robert Martin"
+        stock:
+          type: integer
+          example: 12
+
+    # Response payloads
+    BookResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Clean Code"
+        author:
+          type: string
+          example: "Robert C. Martin"
+        stock:
+          type: integer
+          example: 10
+
+    # Success wrappers
+    DataBookResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/BookResponse"
+
+    DataBooksResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/BookResponse"
