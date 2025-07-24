@@ -124,4 +124,45 @@ describe("Book", () => {
       expect(response.body.pagging.size_page).toBe(5);
     });
   });
+
+  describe("GET /api/books/:bookId", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyBook();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyBook();
+    });
+
+    it("should return the book based on id", async () => {
+      const book = await TestUtils.GetDummyBook();
+      const bookId = book.id;
+      const response = await supertest(web).get(`/api/books/${bookId}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBe(book.id);
+      expect(response.body.data.title).toBe(book.title);
+      expect(response.body.data.author).toBe(book.author);
+      expect(response.body.data.stock).toBe(book.stock);
+    });
+
+    it("should return 404 if the book is not found", async () => {
+      const book = await TestUtils.GetDummyBook();
+      const response = await supertest(web).get(`/api/books/${book.id + 1}`);
+
+      logger.info(response);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return invalid erro if the book is not number", async () => {
+      const response = await supertest(web).get("/api/books/asdf");
+
+      logger.info(response);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });

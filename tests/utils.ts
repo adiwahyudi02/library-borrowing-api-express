@@ -39,4 +39,18 @@ export class TestUtils {
       },
     });
   }
+
+  static async GetDummyBook() {
+    const book = await prismaClient.book.findFirst({
+      where: {
+        title: "title-test-123",
+      },
+    });
+
+    if (!book) {
+      throw new Error("Book is not found");
+    }
+
+    return book;
+  }
 }
