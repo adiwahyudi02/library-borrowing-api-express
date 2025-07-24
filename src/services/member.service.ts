@@ -158,4 +158,24 @@ export class MemberService {
 
     return res;
   };
+
+  static delete = async (memberId: number) => {
+    const id = Validation.validate(MemberValidation.GET, memberId);
+
+    const checkId = await prismaClient.member.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!checkId) {
+      throw new ResponseError(404, "Member not found");
+    }
+
+    await prismaClient.member.delete({
+      where: {
+        id,
+      },
+    });
+  };
 }

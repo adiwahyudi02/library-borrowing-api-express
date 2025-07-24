@@ -62,4 +62,14 @@ export class MemberController {
       next(e);
     }
   };
+
+  static delete = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const memberId = Number(req.params.memberId);
+      await MemberService.delete(memberId);
+      res.status(204).end();
+    } catch (e) {
+      next(e);
+    }
+  };
 }
