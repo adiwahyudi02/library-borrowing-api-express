@@ -21,4 +21,12 @@ export class TestUtils {
       },
     });
   }
+
+  static async DeleteDummyBook() {
+    await prismaClient.book.deleteMany({
+      where: {
+        title: "test",
+      },
+    });
+  }
 }
