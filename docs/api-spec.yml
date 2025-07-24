@@ -12,6 +12,8 @@ tags:
     description: Endpoints related to guards (librarians)
   - name: Books
     description: Endpoints for managing books
+  - name: Members
+    description: Endpoints for managing members
 
 paths:
   /guards/register:
@@ -266,6 +268,173 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
+  /members:
+    post:
+      tags:
+        - Members
+      summary: Create new member
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMemberRequest"
+      responses:
+        "201":
+          description: Member created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataMemberResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      tags:
+        - Members
+      summary: List all members
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: name
+          in: query
+          description: Filter by name (optional)
+          required: false
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Filter by email (optional)
+          required: false
+          schema:
+            type: string
+        - name: phone
+          in: query
+          description: Filter by phone (optional)
+          required: false
+          schema:
+            type: string
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/SizeParam"
+      responses:
+        "200":
+          description: List of members
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataMembersResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /members/{memberId}:
+    get:
+      tags:
+        - Members
+      summary: Get a member by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MemberIdParam"
+      responses:
+        "200":
+          description: Member details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataMemberResponse"
+        "404":
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    patch:
+      tags:
+        - Members
+      summary: Update a member by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MemberIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMemberRequest"
+      responses:
+        "200":
+          description: Updated member data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataMemberResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Members
+      summary: Delete a member by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MemberIdParam"
+      responses:
+        "204":
+          description: Member deleted successfully (no content)
+        "404":
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -290,6 +459,14 @@ components:
       schema:
         type: integer
         example: 10
+
+    MemberIdParam:
+      name: memberId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: ID of the member
 
   schemas:
     # Success wrappers
@@ -468,5 +645,70 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/BookResponse"
+        pagging:
+          $ref: "#/components/schemas/Paging"
+
+    CreateMemberRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          example: "Alice Smith"
+        email:
+          type: string
+          format: email
+          example: "alice@example.com"
+        phone:
+          type: string
+          example: "+62123456789"
+
+    UpdateMemberRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Alice Updated"
+        email:
+          type: string
+          format: email
+          example: "alice.new@example.com"
+        phone:
+          type: string
+          example: "+62876543210"
+
+    # Responses
+    MemberResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Alice Smith"
+        email:
+          type: string
+          format: email
+          example: "alice@example.com"
+        phone:
+          type: string
+          example: "+62123456789"
+
+    DataMemberResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/MemberResponse"
+
+    DataMembersResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/MemberResponse"
         pagging:
           $ref: "#/components/schemas/Paging"
