@@ -2,6 +2,7 @@ import express from "express";
 import { GuardController } from "../controllers/guard.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { BookController } from "../controllers/book.controller";
+import { MemberController } from "../controllers/member.controller";
 
 export const privateRouter = express.Router();
 privateRouter.use(authMiddleware);
@@ -15,3 +16,6 @@ privateRouter.delete("/api/guards/logout", GuardController.logout);
 privateRouter.post("/api/books", BookController.create);
 privateRouter.patch("/api/books/:bookId", BookController.update);
 privateRouter.delete("/api/books/:bookId", BookController.delete);
+
+// members
+privateRouter.post("/api/members", MemberController.create);
