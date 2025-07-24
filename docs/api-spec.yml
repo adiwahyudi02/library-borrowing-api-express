@@ -14,7 +14,7 @@ tags:
     description: Endpoints for managing books
   - name: Members
     description: Endpoints for managing members
-  - name: Borrowing
+  - name: Borrowings
     description: Endpoints for managing borrowings
 
 paths:
