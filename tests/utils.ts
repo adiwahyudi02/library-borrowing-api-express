@@ -25,7 +25,17 @@ export class TestUtils {
   static async DeleteDummyBook() {
     await prismaClient.book.deleteMany({
       where: {
-        title: "test",
+        title: "title-test-123",
+      },
+    });
+  }
+
+  static async CreateDummyBook() {
+    await prismaClient.book.create({
+      data: {
+        title: "title-test-123",
+        author: "author-test-123",
+        stock: 1,
       },
     });
   }
