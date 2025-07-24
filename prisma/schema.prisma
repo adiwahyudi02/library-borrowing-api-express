@@ -24,3 +24,13 @@ model Guard {
 
   @@map("guards")
 }
+
+model Book {
+  id Int @id @default(autoincrement())
+  title String @unique
+  author String
+  stock Int
+  createdAt DateTime @default(now())
+
+  @@map("books")
+}
