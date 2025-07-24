@@ -308,4 +308,47 @@ describe("Member", () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe("DELETE /api/members/:memberId", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+      await TestUtils.CreateDummyMember();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyMember();
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should delete the member based on id", async () => {
+      const member = await TestUtils.GetDummyMember();
+      const memberId = member.id;
+      const response = await supertest(web)
+        .delete(`/api/members/${memberId}`)
+        .set("X-API-TOKEN", "test");
+
+      expect(response.status).toBe(204);
+    });
+
+    it("should return 401 if the token is invalid", async () => {
+      const member = await TestUtils.GetDummyMember();
+      const memberId = member.id;
+      const response = await supertest(web)
+        .delete(`/api/members/${memberId}`)
+        .set("X-API-TOKEN", "wrong");
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return 404 if the member is not found", async () => {
+      const member = await TestUtils.GetDummyMember();
+      const response = await supertest(web)
+        .delete(`/api/members/${member.id + 1}`)
+        .set("X-API-TOKEN", "test");
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });
