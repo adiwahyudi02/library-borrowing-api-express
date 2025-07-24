@@ -32,4 +32,17 @@ export class MemberController {
       next(e);
     }
   };
+
+  static get = async (req: Request, res: Response, next: NextFunction) => {
+    const memberId = Number(req.params.memberId);
+
+    try {
+      const response = await MemberService.get(memberId);
+      res.status(200).json({
+        data: response,
+      });
+    } catch (e) {
+      next(e);
+    }
+  };
 }

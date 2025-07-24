@@ -90,4 +90,26 @@ export class MemberService {
       },
     };
   };
+
+  static get = async (memberId: number) => {
+    const id = Validation.validate(MemberValidation.GET, memberId);
+
+    const res = await prismaClient.member.findFirst({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+      },
+    });
+
+    if (!res) {
+      throw new ResponseError(404, "Member not found");
+    }
+
+    return res;
+  };
 }
