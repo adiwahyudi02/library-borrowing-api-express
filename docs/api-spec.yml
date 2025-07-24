@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: Simple Library Borrowing System - Guards API
   version: 1.0.0
@@ -14,6 +14,8 @@ tags:
     description: Endpoints for managing books
   - name: Members
     description: Endpoints for managing members
+  - name: Borrowing
+    description: Endpoints for managing borrowings
 
 paths:
   /guards/register:
@@ -435,6 +437,184 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
+  /borrowings:
+    get:
+      tags:
+        - Borrowings
+      summary: List all borrowings with filters
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search by member name or book title (partial match)
+          required: false
+          schema:
+            type: string
+            example: "John"
+        - name: status
+          in: query
+          description: Filter by return status true (returned) or false (not returned)
+          required: false
+          schema:
+            type: boolean
+            example: true
+        - name: borrowDate
+          in: query
+          description: Filter by exact borrow date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2025-07-16"
+        - name: dueDate
+          in: query
+          description: Filter by exact due date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2025-07-20"
+        - name: returnDate
+          in: query
+          description: Filter by exact return date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2025-07-22"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/SizeParam"
+      responses:
+        "200":
+          description: List of borrowings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataBorrowingsResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags:
+        - Borrowings
+      summary: Create a new borrowing
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBorrowingRequest"
+      responses:
+        "201":
+          description: Borrowing created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataBorrowingResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /borrowings/{borrowingId}/return:
+    patch:
+      tags:
+        - Borrowings
+      summary: Return the borrowed book by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: borrowingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBorrowingRequest"
+      responses:
+        "200":
+          description: Updated borrowing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataBorrowingResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /borrowings/{borrowingId}:
+    get:
+      tags:
+        - Borrowings
+      summary: Get borrowing by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: borrowingId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Borrowing detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataBorrowingResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Borrowings
+      summary: Delete borrowing by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: borrowingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted successfully (no content)
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -710,5 +890,88 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MemberResponse"
+        pagging:
+          $ref: "#/components/schemas/Paging"
+
+    CreateBorrowingRequest:
+      type: object
+      required:
+        - memberId
+        - bookId
+        - borrowDate
+        - dueDate
+      properties:
+        memberId:
+          type: integer
+          example: 1
+        bookId:
+          type: integer
+          example: 5
+        borrowDate:
+          type: string
+          format: date
+          example: "2025-07-16"
+        dueDate:
+          type: string
+          format: date
+          example: "2025-07-20"
+
+    UpdateBorrowingRequest:
+      type: object
+      properties:
+        returnDate:
+          type: string
+          format: date
+          example: "2025-07-19"
+        returned:
+          type: boolean
+          example: true
+
+    BorrowingResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        memberId:
+          type: integer
+          example: 1
+        bookId:
+          type: integer
+          example: 5
+        borrowDate:
+          type: string
+          format: date
+          example: "2025-07-16"
+        dueDate:
+          type: string
+          format: date
+          example: "2025-07-20"
+        returnDate:
+          type: string
+          format: date
+          nullable: true
+          example: "2025-07-19"
+        returned:
+          type: boolean
+          example: true
+        member:
+          $ref: "#/components/schemas/MemberResponse"
+        book:
+          $ref: "#/components/schemas/BookResponse"
+
+    DataBorrowingResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/BorrowingResponse"
+
+    DataBorrowingsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/BorrowingResponse"
         pagging:
           $ref: "#/components/schemas/Paging"
