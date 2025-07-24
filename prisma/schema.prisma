@@ -34,3 +34,13 @@ model Book {
 
   @@map("books")
 }
+
+model Member {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  email String @db.VarChar(100) @unique
+  phone String? @db.VarChar(20)
+  createdAt DateTime @default(now())
+
+  @@map("members")
+}
