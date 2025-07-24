@@ -150,4 +150,24 @@ export class BookService {
 
     return res;
   };
+
+  static delete = async (bookId: number) => {
+    const id = Validation.validate(BookValidation.GET, bookId);
+
+    const checkId = await prismaClient.book.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!checkId) {
+      throw new ResponseError(404, "Book not found");
+    }
+
+    await prismaClient.book.delete({
+      where: {
+        id,
+      },
+    });
+  };
 }

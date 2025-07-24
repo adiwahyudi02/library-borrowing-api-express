@@ -61,4 +61,14 @@ export class BookController {
       next(e);
     }
   };
+
+  static delete = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const bookId = Number(req.params.bookId);
+      await BookService.delete(bookId);
+      res.status(204).end();
+    } catch (e) {
+      next(e);
+    }
+  };
 }
