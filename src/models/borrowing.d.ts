@@ -15,3 +15,7 @@ export interface ListBorrowingRequest {
   page: number;
   size: number;
 }
+
+export interface ReturningBorrowingRequest {
+  returnDate: string;
+}

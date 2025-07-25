@@ -38,4 +38,8 @@ export class BorrowingValidation {
   });
 
   static readonly GET: ZodType = z.number().positive();
+
+  static readonly RETURNING: ZodType = z.object({
+    returnDate: datetime,
+  });
 }

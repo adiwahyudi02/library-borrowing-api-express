@@ -4,10 +4,30 @@ import { ResponseError } from "../errors/response.error";
 import {
   CreateBorrowingRequest,
   ListBorrowingRequest,
+  ReturningBorrowingRequest,
 } from "../models/borrowing";
 import { BorrowingValidation } from "../validations/borrowing.validation";
 
 export class BorrowingService {
+  static readonly BorrowingSelect = {
+    id: true,
+    borrowDate: true,
+    dueDate: true,
+    returnDate: true,
+    memberId: true,
+    bookId: true,
+    guardId: true,
+    member: true,
+    book: true,
+    guard: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    },
+  };
+
   static create = async (request: CreateBorrowingRequest) => {
     const createRequest = Validation.validate(
       BorrowingValidation.CREATE,
@@ -41,17 +61,7 @@ export class BorrowingService {
     // create borrowing
     const res = await prismaClient.borrowing.create({
       data: createRequest,
-      select: {
-        id: true,
-        borrowDate: true,
-        dueDate: true,
-        returnDate: true,
-        memberId: true,
-        bookId: true,
-        guardId: true,
-        member: true,
-        book: true,
-      },
+      select: this.BorrowingSelect,
     });
 
     // update stock of the book
@@ -147,24 +157,7 @@ export class BorrowingService {
 
     const res = await prismaClient.borrowing.findMany({
       where,
-      select: {
-        id: true,
-        borrowDate: true,
-        dueDate: true,
-        returnDate: true,
-        memberId: true,
-        bookId: true,
-        guardId: true,
-        member: true,
-        book: true,
-        guard: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
+      select: this.BorrowingSelect,
       take: listRequest.size,
       skip: skip,
     });
@@ -191,29 +184,62 @@ export class BorrowingService {
       where: {
         id,
       },
-      select: {
-        id: true,
-        borrowDate: true,
-        dueDate: true,
-        returnDate: true,
-        memberId: true,
-        bookId: true,
-        guardId: true,
-        member: true,
-        book: true,
-        guard: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
+      select: this.BorrowingSelect,
     });
 
     if (!res) {
       throw new ResponseError(404, "Borrowing not found");
     }
+
+    return res;
+  };
+
+  static returning = async (
+    borrowingId: number,
+    request: ReturningBorrowingRequest
+  ) => {
+    const id = Validation.validate(BorrowingValidation.GET, borrowingId);
+    const returningRequest = Validation.validate(
+      BorrowingValidation.RETURNING,
+      request
+    );
+
+    const check = await prismaClient.borrowing.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!check) {
+      throw new ResponseError(404, "Borrowing not found");
+    }
+
+    if (check.returnDate) {
+      throw new ResponseError(
+        400,
+        `Borrowing already returned at ${check.returnDate}`
+      );
+    }
+
+    const res = await prismaClient.borrowing.update({
+      where: {
+        id,
+      },
+      data: returningRequest,
+      select: this.BorrowingSelect,
+    });
+
+    // update stock of the book
+    await prismaClient.book.update({
+      where: {
+        id: res.bookId,
+      },
+      data: {
+        stock: {
+          increment: 1,
+        },
+      },
+    });
 
     return res;
   };

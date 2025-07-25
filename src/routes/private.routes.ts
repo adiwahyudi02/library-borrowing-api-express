@@ -29,3 +29,7 @@ privateRouter.delete("/api/members/:memberId", MemberController.delete);
 privateRouter.post("/api/borrowings", BorrowingController.create);
 privateRouter.get("/api/borrowings", BorrowingController.list);
 privateRouter.get("/api/borrowings/:borrowingId", BorrowingController.get);
+privateRouter.patch(
+  "/api/borrowings/:borrowingId/return",
+  BorrowingController.returning
+);

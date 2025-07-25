@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import {
   CreateBorrowingRequest,
   ListBorrowingRequest,
+  ReturningBorrowingRequest,
 } from "../models/borrowing";
 import { BorrowingService } from "../services/borrowing.service";
 
@@ -39,6 +40,23 @@ export class BorrowingController {
 
     try {
       const response = await BorrowingService.get(borrowingId);
+      res.status(200).json({
+        data: response,
+      });
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  static returning = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const borrowingId = Number(req.params.borrowingId);
+      const request = req.body as ReturningBorrowingRequest;
+      const response = await BorrowingService.returning(borrowingId, request);
       res.status(200).json({
         data: response,
       });
