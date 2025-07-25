@@ -157,6 +157,13 @@ export class BorrowingService {
         guardId: true,
         member: true,
         book: true,
+        guard: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
       take: listRequest.size,
       skip: skip,
@@ -175,5 +182,39 @@ export class BorrowingService {
         total_items: total,
       },
     };
+  };
+
+  static get = async (borrowingId: number) => {
+    const id = Validation.validate(BorrowingValidation.GET, borrowingId);
+
+    const res = await prismaClient.borrowing.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        borrowDate: true,
+        dueDate: true,
+        returnDate: true,
+        memberId: true,
+        bookId: true,
+        guardId: true,
+        member: true,
+        book: true,
+        guard: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!res) {
+      throw new ResponseError(404, "Borrowing not found");
+    }
+
+    return res;
   };
 }

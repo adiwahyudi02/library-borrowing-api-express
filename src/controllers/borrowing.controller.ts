@@ -33,4 +33,17 @@ export class BorrowingController {
       next(e);
     }
   };
+
+  static get = async (req: Request, res: Response, next: NextFunction) => {
+    const borrowingId = Number(req.params.borrowingId);
+
+    try {
+      const response = await BorrowingService.get(borrowingId);
+      res.status(200).json({
+        data: response,
+      });
+    } catch (e) {
+      next(e);
+    }
+  };
 }
