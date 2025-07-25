@@ -143,4 +143,26 @@ export class TestUtils {
       },
     });
   }
+
+  static async GetDummyBorrowing() {
+    const guard = await this.GetDummyGuard();
+    const book = await this.GetDummyBook();
+    const member = await this.GetDummyMember();
+
+    const borrowing = await prismaClient.borrowing.findFirst({
+      where: {
+        memberId: member.id,
+        bookId: book.id,
+        guardId: guard.id,
+        borrowDate: "2025-07-24T00:00:00.000Z",
+        dueDate: "2025-08-24T00:00:00.000Z",
+      },
+    });
+
+    if (!borrowing) {
+      throw new Error("Borrowing is not found");
+    }
+
+    return borrowing;
+  }
 }

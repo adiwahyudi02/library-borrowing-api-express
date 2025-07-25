@@ -252,4 +252,72 @@ describe("Borrowing", () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe("GET /api/borrowings/:borrowingId", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+      await TestUtils.CreateDummyMember();
+      await TestUtils.CreateDummyBook();
+      await TestUtils.CreateDummyBorrowing();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyBorrowing();
+      await TestUtils.DeleteDummyMember();
+      await TestUtils.DeleteDummyBook();
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should return the borrowing based on id", async () => {
+      const borrowing = await TestUtils.GetDummyBorrowing();
+      const borrowingId = borrowing.id;
+      const response = await supertest(web)
+        .get(`/api/borrowings/${borrowingId}`)
+        .set("X-API-TOKEN", "test");
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBe(borrowing.id);
+      expect(response.body.data.memberId).toBe(borrowing.memberId);
+      expect(response.body.data.bookId).toBe(borrowing.bookId);
+      expect(response.body.data.guardId).toBe(borrowing.guardId);
+      expect(response.body.data.borrowDate).toBe(
+        borrowing.borrowDate.toISOString()
+      );
+      expect(response.body.data.dueDate).toBe(borrowing.dueDate?.toISOString());
+    });
+
+    it("should return 404 if the borrowing is not found", async () => {
+      const borrowing = await TestUtils.GetDummyBorrowing();
+      const response = await supertest(web)
+        .get(`/api/borrowings/${borrowing.id + 1}`)
+        .set("X-API-TOKEN", "test");
+
+      logger.info(response);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return invalid error if the borrowings id is not number", async () => {
+      const response = await supertest(web)
+        .get("/api/borrowings/asdf")
+        .set("X-API-TOKEN", "test");
+
+      logger.info(response);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should be unauthorized to get borrowing if the token is wrong", async () => {
+      const borrowing = await TestUtils.GetDummyBorrowing();
+      const borrowingId = borrowing.id;
+      const response = await supertest(web)
+        .get(`/api/borrowings/${borrowingId}`)
+        .set("X-API-TOKEN", "wrong");
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });
