@@ -414,4 +414,51 @@ describe("Borrowing", () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe("DELETE /api/borrowings/:borrowingId", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+      await TestUtils.CreateDummyMember();
+      await TestUtils.CreateDummyBook();
+      await TestUtils.CreateDummyBorrowing();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyBorrowing();
+      await TestUtils.DeleteDummyMember();
+      await TestUtils.DeleteDummyBook();
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should delete the borrowing based on id", async () => {
+      const borrowing = await TestUtils.GetDummyBorrowing();
+      const borrowingId = borrowing.id;
+      const response = await supertest(web)
+        .delete(`/api/borrowings/${borrowingId}`)
+        .set("X-API-TOKEN", "test");
+
+      expect(response.status).toBe(204);
+    });
+
+    it("should return 401 if the token is invalid", async () => {
+      const borrowing = await TestUtils.GetDummyBorrowing();
+      const borrowingId = borrowing.id;
+      const response = await supertest(web)
+        .delete(`/api/borrowings/${borrowingId}`)
+        .set("X-API-TOKEN", "wrong");
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return 404 if the borrowing is not found", async () => {
+      const borrowing = await TestUtils.GetDummyBorrowing();
+      const response = await supertest(web)
+        .delete(`/api/borrowings/${borrowing.id + 1}`)
+        .set("X-API-TOKEN", "test");
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });
