@@ -243,4 +243,24 @@ export class BorrowingService {
 
     return res;
   };
+
+  static delete = async (borrowingId: number) => {
+    const id = Validation.validate(BorrowingValidation.GET, borrowingId);
+
+    const checkId = await prismaClient.borrowing.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!checkId) {
+      throw new ResponseError(404, "Borrowing not found");
+    }
+
+    await prismaClient.borrowing.delete({
+      where: {
+        id,
+      },
+    });
+  };
 }

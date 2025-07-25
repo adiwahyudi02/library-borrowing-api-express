@@ -33,3 +33,7 @@ privateRouter.patch(
   "/api/borrowings/:borrowingId/return",
   BorrowingController.returning
 );
+privateRouter.delete(
+  "/api/borrowings/:borrowingId",
+  BorrowingController.delete
+);

@@ -64,4 +64,14 @@ export class BorrowingController {
       next(e);
     }
   };
+
+  static delete = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const borrowingId = Number(req.params.borrowingId);
+      await BorrowingService.delete(borrowingId);
+      res.status(204).end();
+    } catch (e) {
+      next(e);
+    }
+  };
 }
