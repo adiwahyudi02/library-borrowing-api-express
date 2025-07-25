@@ -448,18 +448,20 @@ paths:
       parameters:
         - name: search
           in: query
-          description: Search by member name or book title (partial match)
+          description: Search by member name, member email or book title (partial match)
           required: false
           schema:
             type: string
             example: "John"
         - name: status
           in: query
-          description: Filter by return status true (returned) or false (not returned)
+          description: Filter by return status enum (borrowed, returned)
           required: false
           schema:
-            type: boolean
-            example: true
+            enum:
+              - borrowed
+              - returned
+            example: borrowed
         - name: borrowDate
           in: query
           description: Filter by exact borrow date (YYYY-MM-DD)
