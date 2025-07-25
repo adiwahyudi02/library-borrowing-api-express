@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Simple Library Borrowing System - Guards API
+  title: Simple Library Borrowing System
   version: 1.0.0
   description: API for managing guards (librarians) who can manage books, members, and borrowings.
 
