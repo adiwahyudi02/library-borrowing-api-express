@@ -558,7 +558,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateBorrowingRequest"
+              $ref: "#/components/schemas/ReturningBorrowingRequest"
       responses:
         "200":
           description: Updated borrowing
@@ -947,23 +947,20 @@ components:
           type: string
           description: Iso8601 datetime format
           format: datetime
-          example: "2025-07-25T00:00:00Z"
+          example: "2025-07-25T00:00:00.000Z"
         dueDate:
           type: string
           description: Iso8601 datetime format
           format: datetime
-          example: "2025-08-28T00:00:00Z"
+          example: "2025-08-28T00:00:00.000Z"
 
-    UpdateBorrowingRequest:
+    ReturningBorrowingRequest:
       type: object
       properties:
         returnDate:
           type: string
           format: datetime
-          example: "2025-07-19T00:00:00Z"
-        returned:
-          type: boolean
-          example: true
+          example: "2025-07-19T00:00:00.000Z"
 
     BorrowingResponse:
       type: object
@@ -980,16 +977,16 @@ components:
         borrowDate:
           type: string
           format: datetime
-          example: "2025-07-16T00:00:00Z"
+          example: "2025-07-16T00:00:00.000Z"
         dueDate:
           type: string
           format: datetime
-          example: "2025-07-20T00:00:00Z"
+          example: "2025-07-20T00:00:00.000Z"
         returnDate:
           type: string
           format: datetime
           nullable: true
-          example: "2025-07-19T00:00:00Z"
+          example: "2025-07-19T00:00:00.000Z"
         returned:
           type: boolean
           example: true
