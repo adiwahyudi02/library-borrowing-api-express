@@ -5,3 +5,13 @@ export interface CreateBorrowingRequest {
   borrowDate: string;
   dueDate: string;
 }
+
+export interface ListBorrowingRequest {
+  search?: string;
+  status?: "borrowed" | "returned";
+  borrowDate?: string;
+  dueDate?: string;
+  returnDate?: string;
+  page: number;
+  size: number;
+}

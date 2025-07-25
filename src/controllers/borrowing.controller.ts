@@ -1,5 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { CreateBorrowingRequest } from "../models/borrowing";
+import {
+  CreateBorrowingRequest,
+  ListBorrowingRequest,
+} from "../models/borrowing";
 import { BorrowingService } from "../services/borrowing.service";
 
 export class BorrowingController {
@@ -11,6 +14,21 @@ export class BorrowingController {
       res.status(201).json({
         data: response,
       });
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  static list = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const request: ListBorrowingRequest = {
+        ...req.query,
+        page: parseInt(req.query.page as string) || 1,
+        size: parseInt(req.query.size as string) || 10,
+      };
+
+      const response = await BorrowingService.list(request);
+      res.status(200).json(response);
     } catch (e) {
       next(e);
     }
