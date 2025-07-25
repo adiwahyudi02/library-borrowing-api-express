@@ -320,4 +320,98 @@ describe("Borrowing", () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe("PATCH /api/borrowings/:borrowingId/return", () => {
+    beforeEach(async () => {
+      await TestUtils.CreateDummyGuard();
+      await TestUtils.CreateDummyMember();
+      await TestUtils.CreateDummyBook();
+      await TestUtils.CreateDummyBorrowing();
+    });
+
+    afterEach(async () => {
+      await TestUtils.DeleteDummyBorrowing();
+      await TestUtils.DeleteDummyMember();
+      await TestUtils.DeleteDummyBook();
+      await TestUtils.DeleteDummyGuard();
+    });
+
+    it("should return the borrowing based on id", async () => {
+      const prevBook = await TestUtils.GetDummyBook();
+      const borrowing = await TestUtils.GetDummyBorrowing();
+      const borrowingId = borrowing.id;
+      const returnDate = new Date().toISOString();
+
+      const response = await supertest(web)
+        .patch(`/api/borrowings/${borrowingId}/return`)
+        .set("X-API-TOKEN", "test")
+        .send({
+          returnDate,
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toBeDefined();
+      expect(response.body.data.id).toBe(borrowing.id);
+      expect(response.body.data.returnDate).toBe(returnDate);
+
+      const updatedBook = await TestUtils.GetDummyBook();
+      // check stock
+      expect(updatedBook.stock).toBe(prevBook.stock + 1);
+    });
+
+    it("should return 404 if the borrowing is not found", async () => {
+      const borrowing = await TestUtils.GetDummyBorrowing();
+      const returnDate = new Date().toISOString();
+
+      const response = await supertest(web)
+        .patch(`/api/borrowings/${borrowing.id + 1}/return`)
+        .set("X-API-TOKEN", "test")
+        .send({
+          returnDate,
+        });
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it("should return 400 if the the borrowing already returned", async () => {
+      const borrowing = await TestUtils.GetDummyBorrowing();
+      const returnDate = new Date().toISOString();
+
+      // return the borrowing
+      await supertest(web)
+        .patch(`/api/borrowings/${borrowing.id}/return`)
+        .set("X-API-TOKEN", "test")
+        .send({
+          returnDate,
+        });
+
+      // return the borrowing agian it should fail
+      const fail = await supertest(web)
+        .patch(`/api/borrowings/${borrowing.id}/return`)
+        .set("X-API-TOKEN", "test")
+        .send({
+          returnDate,
+        });
+
+      expect(fail.status).toBe(400);
+      expect(fail.body.errors).toBeDefined();
+    });
+
+    it("should be 401 unauthorized to return borrowing if the token is wrong", async () => {
+      const borrowing = await TestUtils.GetDummyBorrowing();
+      const borrowingId = borrowing.id;
+      const returnDate = new Date().toISOString();
+
+      const response = await supertest(web)
+        .patch(`/api/borrowings/${borrowingId}/return`)
+        .set("X-API-TOKEN", "wrong")
+        .send({
+          returnDate,
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });
